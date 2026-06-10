@@ -1,0 +1,119 @@
+{
+  "entities": {
+    "Invention": {
+      "title": "Invention",
+      "description": "An invention idea uploaded by an elementary school student.",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "The title of the invention."
+        },
+        "shortIdea": {
+          "type": "string",
+          "description": "Short summary or line describing the invention."
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed polished explanation of the invention."
+        },
+        "slogan": {
+          "type": "string",
+          "description": "AI generated slogan or catchphrase."
+        },
+        "targetAudience": {
+          "type": "string",
+          "description": "Recommended audience or group for this invention."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "Image URL or Base64 representation of drawing/clay model."
+        },
+        "authorId": {
+          "type": "string",
+          "description": "User UID who posted the invention."
+        },
+        "authorName": {
+          "type": "string",
+          "description": "Display name of the author."
+        },
+        "authorPhoto": {
+          "type": "string",
+          "description": "Profile picture URL of the author."
+        },
+        "likesCount": {
+          "type": "integer",
+          "description": "Total number of stars or cheers."
+        },
+        "likedBy": {
+          "type": "array",
+          "description": "Array of user UIDs who cheered for this invention."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the invention was registered."
+        }
+      },
+      "required": [
+        "title",
+        "shortIdea",
+        "description",
+        "slogan",
+        "targetAudience",
+        "authorId",
+        "authorName",
+        "createdAt"
+      ]
+    },
+    "Comment": {
+      "title": "Comment",
+      "description": "A collaborative encouraging feedback or suggestion from standard users on an Invention.",
+      "type": "object",
+      "properties": {
+        "inventionId": {
+          "type": "string",
+          "description": "Target invention document ID."
+        },
+        "text": {
+          "type": "string",
+          "description": "Friendly, encouraging comment suggestion text."
+        },
+        "authorId": {
+          "type": "string",
+          "description": "User UID who posted the comment."
+        },
+        "authorName": {
+          "type": "string",
+          "description": "Display name of the commenter."
+        },
+        "authorPhoto": {
+          "type": "string",
+          "description": "Profile picture URL of the commenter."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the comment was written."
+        }
+      },
+      "required": [
+        "inventionId",
+        "text",
+        "authorId",
+        "authorName",
+        "createdAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/inventions/{inventionId}": {
+      "schema": "Invention",
+      "description": "Creative inventions uploaded by elementary school students."
+    },
+    "/comments/{commentId}": {
+      "schema": "Comment",
+      "description": "Encouraging peers feedback comments for creative ideas."
+    }
+  }
+}

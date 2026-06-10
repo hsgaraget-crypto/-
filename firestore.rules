@@ -1,0 +1,71 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(authorId) {
+      return isSignedIn() && request.auth.uid == authorId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // 1. Inventions Rules
+    match /inventions/{inventionId} {
+      allow read: if isSignedIn();
+      
+      allow create: if isSignedIn()
+        && incoming().authorId == request.auth.uid
+        && incoming().title is string && incoming().title.size() <= 100
+        && incoming().shortIdea is string && incoming().shortIdea.size() <= 300
+        && incoming().createdAt == request.time;
+
+      allow update: if isSignedIn() && (
+        // Action 1: Owner updates their own invention
+        (isOwner(existing().authorId) 
+          && incoming().authorId == existing().authorId
+          && incoming().title is string && incoming().title.size() <= 100
+          && incoming().shortIdea is string && incoming().shortIdea.size() <= 300
+          && incoming().createdAt == existing().createdAt)
+        ||
+        // Action 2: Peer cheers / likes the invention (allows modifying likesCount and likedBy)
+        (incoming().diff(existing()).affectedKeys().hasOnly(['likesCount', 'likedBy'])
+          && incoming().likesCount is int
+          && incoming().likedBy is list)
+      );
+
+      allow delete: if isSignedIn() && isOwner(existing().authorId);
+    }
+
+    // 2. Comments Rules
+    match /comments/{commentId} {
+      allow read: if isSignedIn();
+      
+      allow create: if isSignedIn()
+        && incoming().authorId == request.auth.uid
+        && incoming().inventionId is string
+        && incoming().text is string && incoming().text.size() <= 500
+        && incoming().createdAt == request.time;
+
+      allow delete: if isSignedIn() && isOwner(existing().authorId);
+    }
+  }
+}
